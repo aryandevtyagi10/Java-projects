@@ -1,1 +1,116 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
 
+public class NumberMissingGame extends JFrame implements ActionListener {
+
+    private final JButton[] numberButtons = new JButton[9];
+    private final JTextField inputField = new JTextField();
+    private final JLabel messageLabel = new JLabel("Guess the missing number!");
+    private final JLabel scoreLabel = new JLabel("Score: 0");
+    private final JButton submitButton = new JButton("Submit");
+    private final JButton retryButton = new JButton("Try Again");
+
+    private int missingNumber = 0;
+    private int score = 0;
+
+    public NumberMissingGame() {
+        setTitle("Number Missing Game");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(400, 500);
+        setLayout(new BorderLayout());
+        setLocationRelativeTo(null);
+
+        initUI();
+        generatePuzzle();
+
+        setVisible(true);
+    }
+
+    private void initUI() {
+        JPanel gridPanel = new JPanel(new GridLayout(3, 3, 5, 5));
+        gridPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        for (int i = 0; i < 9; i++) {
+            numberButtons[i] = new JButton();
+            numberButtons[i].setFont(new Font("Arial", Font.BOLD, 24));
+            numberButtons[i].setEnabled(false);
+            gridPanel.add(numberButtons[i]);
+        }
+
+        JPanel inputPanel = new JPanel(new GridLayout(3, 1, 10, 10));
+        inputField.setFont(new Font("Arial", Font.PLAIN, 20));
+        inputField.setHorizontalAlignment(JTextField.CENTER);
+
+        submitButton.setFont(new Font("Arial", Font.BOLD, 18));
+        submitButton.addActionListener(this);
+
+        retryButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        retryButton.addActionListener(this);
+
+        messageLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        messageLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(0, 40, 20, 40));
+        inputPanel.add(inputField);
+        inputPanel.add(submitButton);
+        inputPanel.add(messageLabel);
+
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(scoreLabel, BorderLayout.WEST);
+        bottomPanel.add(retryButton, BorderLayout.EAST);
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        add(gridPanel, BorderLayout.CENTER);
+        add(inputPanel, BorderLayout.SOUTH);
+        add(bottomPanel, BorderLayout.NORTH);
+    }
+
+    private void generatePuzzle() {
+        List<Integer> numbers = new ArrayList<>();
+        for (int i = 1; i <= 9; i++) {
+            numbers.add(i);
+        }
+
+        Collections.shuffle(numbers);
+        missingNumber = numbers.get(new Random().nextInt(9));
+        numbers.set(numbers.indexOf(missingNumber), 0); // Replace with 0 for blank
+
+        for (int i = 0; i < 9; i++) {
+            if (numbers.get(i) == 0) {
+                numberButtons[i].setText("?");
+            } else {
+                numberButtons[i].setText(String.valueOf(numbers.get(i)));
+            }
+        }
+
+        inputField.setText("");
+        messageLabel.setText("Guess the missing number!");
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == submitButton) {
+            String input = inputField.getText().trim();
+            try {
+                int guessed = Integer.parseInt(input);
+                if (guessed == missingNumber) {
+                    score++;
+                    messageLabel.setText("Correct! The missing number was " + missingNumber + ".");
+                } else {
+                    messageLabel.setText("Wrong! It was " + missingNumber + ".");
+                }
+                scoreLabel.setText("Score: " + score);
+            } catch (NumberFormatException ex) {
+                messageLabel.setText("Please enter a valid number.");
+            }
+        } else if (e.getSource() == retryButton) {
+            generatePuzzle();
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(NumberMissingGame::new);
+    }
+}
