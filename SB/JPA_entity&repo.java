@@ -16,3 +16,16 @@ public class User {
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 }
+
+
+
+
+package com.example.demo.repository;
+
+import com.example.demo.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    // Spring Data JPA will implement this automatically!
+    User findByUsername(String username);
+}
